@@ -19,7 +19,7 @@ use volatile::Volatile;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        color_code: ColorCode::new(Color::Cyan, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
@@ -56,7 +56,7 @@ impl ColorCode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(C)]
+#[repr(C)] // C-like struct so the order of the fields is fixed.
 struct Screenchar {
     ascii_char: u8,
     color_code: ColorCode,
@@ -144,4 +144,28 @@ pub fn _write_something() {
     writer.write_string("ello ");
     writer.write_string("Wørld!");
     write!(writer, "numbers are {} and {}", 10, 1.0 / 3.0).unwrap();
+}
+
+#[test_case]
+fn trivial_assertion() {
+    assert_eq!(1, 1);
+}
+#[test_case]
+fn test_println_simple() {
+    println!("test_println_simple output");
+}
+#[test_case]
+fn test_println_many() {
+    for _ in 0..200 {
+        println!("test_println_many output");
+    }
+}
+#[test_case]
+fn test_println_output() {
+    let s = "some test string that fits on a single line";
+    print!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 1][i].read();
+        assert_eq!(char::from(screen_char.ascii_char), c);
+    }
 }
