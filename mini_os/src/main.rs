@@ -25,10 +25,16 @@ pub extern "C" fn _start() -> ! {
     // use core::fmt::Write;
     // vga_buffer::WRITER.lock().write_str("Hello world").unwrap();
     // write!(vga_buffer::WRITER.lock(), "some numbers: {} {}", 10, 3.14).unwrap();
-    println!("hello world{}", "!");
+    println!("hello world!");
+    mini_os::init();
+
+    //invoke a breakpoint exception...
+    x86_64::instructions::interrupts::int3();
 
     #[cfg(test)] // using "cfg(test)" for conditional compiling...
     test_main(); // name of the test framework entry function
+
+    println!("It did not crash!");
 
     loop {}
 }
