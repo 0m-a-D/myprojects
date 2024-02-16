@@ -22,9 +22,9 @@ checksum = "ed570934406eb16438a4e976b1b4500774099c13b8cb96eec99f620f05090ddf"
 
 [[package]]
 name = "bootloader"
-version = "0.9.24"
+version = "0.9.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6f4dd3d0a9b440470ea52afcb5f9f09eeefbe36d1d0c29bae397f493d9fddb1"
+checksum = "16a25c039837fa0543254b422887e6753b48edaa756959999e125afb86ac51c8"
 
 [[package]]
 name = "lazy_static"

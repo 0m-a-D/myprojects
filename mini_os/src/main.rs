@@ -3,6 +3,7 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(mini_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+
 use core::panic::PanicInfo;
 use mini_os::println;
 // static HELLO: &[u8] = b"Hello World!";
@@ -27,6 +28,18 @@ pub extern "C" fn _start() -> ! {
     // write!(vga_buffer::WRITER.lock(), "some numbers: {} {}", 10, 3.14).unwrap();
     println!("hello world!");
     mini_os::init();
+
+    //triggering a page fault
+    // unsafe {
+    //     *(0xdeadbeef as *mut u8) = 42;
+    // }
+
+    // triggering a stack overflow
+    #[allow(unconditional_recursion)]
+    fn stack_overflow() {
+        stack_overflow();
+    }
+    stack_overflow();
 
     //invoke a breakpoint exception...
     x86_64::instructions::interrupts::int3();
