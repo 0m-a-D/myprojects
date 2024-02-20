@@ -58,6 +58,7 @@ pub fn init_test_idt() {
 
 use mini_os::{exit_qemu, serial_println, QemuExitcode};
 use x86_64::structures::idt::InterruptStackFrame;
+
 extern "x86-interrupt" fn test_double_fault_handler(
     _stack_frame: InterruptStackFrame,
     _error_code: u64,

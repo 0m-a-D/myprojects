@@ -13,7 +13,7 @@ use mini_os::println;
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    mini_os::hlt_loop();
 }
 #[cfg(test)]
 #[panic_handler]
@@ -22,32 +22,19 @@ fn panic(info: &PanicInfo) -> ! {
 }
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    // vga_buffer::write_something();
-    // use core::fmt::Write;
-    // vga_buffer::WRITER.lock().write_str("Hello world").unwrap();
-    // write!(vga_buffer::WRITER.lock(), "some numbers: {} {}", 10, 3.14).unwrap();
     println!("hello world!");
     mini_os::init();
 
-    //triggering a page fault
-    // unsafe {
-    //     *(0xdeadbeef as *mut u8) = 42;
-    // }
-
-    // triggering a stack overflow
-    #[allow(unconditional_recursion)]
-    fn stack_overflow() {
-        stack_overflow();
-    }
-    stack_overflow();
-
-    //invoke a breakpoint exception...
-    x86_64::instructions::interrupts::int3();
+    // x86_64::instructions::interrupts::int3();
 
     #[cfg(test)] // using "cfg(test)" for conditional compiling...
     test_main(); // name of the test framework entry function
 
     println!("It did not crash!");
+    mini_os::hlt_loop();
+}
 
-    loop {}
+#[test_case]
+fn trivial_assertion() {
+    assert_eq!(1, 1);
 }
