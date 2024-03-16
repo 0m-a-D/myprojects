@@ -4,6 +4,8 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+extern crate alloc; // using alloc which is a subset of "std" like "core"...
+pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;
@@ -26,13 +28,13 @@ pub fn exit_qemu(exit_code: QemuExitcode) {
 
 use core::panic::PanicInfo;
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self);
 }
 impl<T> Testable for T
 where
     T: Fn(),
 {
-    fn run(&self) -> () {
+    fn run(&self) {
         serial_print!("{}...\t", core::any::type_name::<T>());
         self();
         serial_println!("[ok]");

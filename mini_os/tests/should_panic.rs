@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use mini_os::{exit_qemu, serial_print, serial_println, QemuExitcode};
+use mini_os::{exit_qemu, hlt_loop, serial_print, serial_println, QemuExitcode};
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -20,7 +20,7 @@ pub extern "C" fn _start() -> ! {
     serial_println!("[test did not panic!]");
     exit_qemu(QemuExitcode::Failure);
 
-    loop {}
+    hlt_loop()
 }
 
 fn should_fail() {
