@@ -39,9 +39,32 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
 
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    // STACK IMPLEMENTATION CHECK
+    println!("physical_memory_offset: {:?}", phys_mem_offset);
+    // {
+    //     let a = 10;
+    //     println!("virtual address of a is {:p} and value is {}", &a, a);
+    // }
+    let a = 10;
+    let b = 20;
+    let c = 30;
+    println!("virtual address of a is {:p} and value is {}", &a, a);
+    println!("virtual address of b is {:p} and value is {}", &b, b);
+    println!("virtual address of c is {:p} and value is {}", &c, c);
+    // writing to arbitrary address
+    unsafe {
+        let ptr = 0x10000201bf4 as *mut u8;
+        ptr.write(10);
+        println!("holds: {} at -> {:p}", *ptr, ptr);
+
+        let ptr = 0x10000201bf8 as *mut f32;
+        ptr.write(12.5);
+        println!("holds: {} at {:p}", *ptr, ptr);
+    }
 
     // HEAP IMPLEMENTATION CHECK
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialisation failed!");
+
     let a = Box::new(41);
     println!("value at {:p} is {}", a, a);
 
@@ -71,7 +94,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     mini_os::hlt_loop();
 }
 
-#[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
-}
+// #[test_case]
+// fn trivial_assertion() {
+//     assert_eq!(1, 1);
+// }

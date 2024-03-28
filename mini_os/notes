@@ -1,0 +1,10 @@
+refer to 'https://llvm.org/docs/LangRef.html#data-layout' for more info.
+in the target .json file: 
+-> small "e" stands for little endian [E for big endian]
+little endian means least significant byte is assigned to lowest address.
+
+
+#SCHEDULERS
+-> bump allocator: fast allocation design but cannot reuse free memory.
+-> linked list allocator: slower than bump but address to free memory chunks are stored as nodes
+Idea is to store information (pointer to next free chunk) in these free regions

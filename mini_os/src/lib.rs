@@ -1,5 +1,6 @@
 #![no_std]
 #![feature(abi_x86_interrupt)]
+#![feature(const_mut_refs)] // mutable references in const functions are unstable
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
@@ -14,14 +15,15 @@ pub mod vga_buffer;
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 #[repr(u32)]
 pub enum QemuExitcode {
-    Success = 0x10,
-    Failure = 0x11,
+    Success = 0x10, // 16 --> mapped to success exit code 33 [(16 << 1) | 1]...
+    Failure = 0x11, // 17
 }
 pub fn exit_qemu(exit_code: QemuExitcode) {
     use x86_64::instructions::port::Port;
 
     unsafe {
         let mut port = Port::new(0xf4);
+        // 0xf4 is chosen as it is generally unused on x86 architecture...
         port.write(exit_code as u32);
     }
 }

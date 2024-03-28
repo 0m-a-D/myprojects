@@ -14,7 +14,7 @@ lazy_static! {
         /*
 
         set_stack_index is marked unsafe because caller should ensure used index is valid and
-        not already used for another exception.
+        not already used for another exception. In this case, it's set to index 0.
 
         */
         idt[InterrupIndex::Timer.as_usize()].set_handler_fn(timer_interrupt_handler);
@@ -31,7 +31,7 @@ lazy_static! {
 }
 
 pub fn init_idt() {
-    IDT.load();
+    IDT.load(); // uses the "lidt" instruction to load interrupt descriptor table...
 }
 
 /// CPU EXCEPTION HANDLERS
@@ -71,7 +71,7 @@ fn test_breakpoint_exception() {
 
 /// HARDWARE INTERRUPTS SECTION
 use pic8259::ChainedPics;
-use spin;
+// use spin;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
@@ -96,7 +96,7 @@ impl InterrupIndex {
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
     print!(".");
-
+    // sending and EOI signal that timer interrupt has been processed...
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterrupIndex::Timer.as_u8());
@@ -114,6 +114,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     }
     let mut keyboard = KEYBOARD.lock();
     let mut port = Port::new(0x60);
+    // 0x60 (I/O port) is data port of PS-2 keyboard...
     let scancode: u8 = unsafe { port.read() };
 
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
@@ -124,7 +125,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
             }
         }
     }
-
+    // similar to timer interrupt, we send an EOI signal to PICs...
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterrupIndex::Keyboard.as_u8());

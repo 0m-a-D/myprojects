@@ -9,10 +9,11 @@ macro_rules! println {
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 #[doc(hidden)]
+/// this is a public function because it is used in macro_export which needs to publicly reexported...
 pub fn _print(args: fmt::Arguments) {
-    // use core::fmt::Write;
     use x86_64::instructions::interrupts;
 
+    // "without_interrupts()" disables the interrupts with "cli" instruction and run the closure...
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
     })
@@ -23,7 +24,7 @@ use volatile::Volatile;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::White, Color::Black),
+        color_code: ColorCode::new(Color::Cyan, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
@@ -73,6 +74,10 @@ const BUFFER_WIDTH: usize = 80;
 struct Buffer {
     chars: [[Volatile<Screenchar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
+// notice the chars is declared as array of "volatile" characters. because we are writing to a vga_buffer
+// which follows same memory addr convention (0xb8000) as RAM but actually is not part of RAM. Hence compiler
+// can omit read and writes to these addresses. Volatile variables are guaranteed to NOT be
+// optimised by the compiler.
 
 pub struct Writer {
     column_position: usize,
@@ -80,6 +85,25 @@ pub struct Writer {
     buffer: &'static mut Buffer,
 }
 impl Writer {
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+    fn clear_row(&mut self, row: usize) {
+        let blank = Screenchar {
+            ascii_char: b' ',
+            color_code: self.color_code,
+        };
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
+        }
+    }
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
@@ -108,25 +132,6 @@ impl Writer {
                 // not part of printable ASCII range
                 _ => self.write_byte(0xfe),
             }
-        }
-    }
-    fn new_line(&mut self) {
-        for row in 1..BUFFER_HEIGHT {
-            for col in 0..BUFFER_WIDTH {
-                let character = self.buffer.chars[row][col].read();
-                self.buffer.chars[row - 1][col].write(character);
-            }
-        }
-        self.clear_row(BUFFER_HEIGHT - 1);
-        self.column_position = 0;
-    }
-    fn clear_row(&mut self, row: usize) {
-        let blank = Screenchar {
-            ascii_char: b' ',
-            color_code: self.color_code,
-        };
-        for col in 0..BUFFER_WIDTH {
-            self.buffer.chars[row][col].write(blank);
         }
     }
 }

@@ -1,3 +1,4 @@
+// stack frame allocator mapping entire virtual memory to physical memory...
 use x86_64::{
     structures::paging::{OffsetPageTable, PageTable},
     VirtAddr,
@@ -18,8 +19,8 @@ unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut
 // initialize a new OffsetPageTable
 /// # Safety
 pub unsafe fn init(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static> {
-    let level_4_table = active_level_4_table(physical_memory_offset);
-    OffsetPageTable::new(level_4_table, physical_memory_offset)
+    let level4_table = active_level_4_table(physical_memory_offset);
+    OffsetPageTable::new(level4_table, physical_memory_offset)
 }
 
 use x86_64::{
@@ -46,7 +47,7 @@ pub fn create_example_mapping(
     map_to_result.expect("map_to failed").flush();
 }
 
-// a frame allocator that always returns None
+// a frame allocator that always returns None [just for fun, won't be using this anywhere]
 pub struct EmptyFrameAllocator;
 
 unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
