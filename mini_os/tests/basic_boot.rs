@@ -10,7 +10,7 @@ use mini_os::println;
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     test_main();
-    loop {}
+    mini_os::hlt_loop();
 }
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {

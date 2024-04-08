@@ -62,17 +62,19 @@ pub fn init_heap(
     Ok(())
 }
 
-// own wrapper type around spin::Mutex
+// own wrapper type around spin::Mutex to get mutable references to allocators
 pub struct Locked<A> {
     inner: spin::Mutex<A>,
 }
 impl<A> Locked<A> {
+    /// Creates a new [`Locked<A>`].
     // declaring new as "const" because initialization expression of a static must be evaluable at compile time.
     pub const fn new(inner: A) -> Self {
         Locked {
             inner: spin::Mutex::new(inner),
         }
     }
+    /// Returns the lock of this [`Locked<A>`].
     pub fn lock(&self) -> spin::MutexGuard<A> {
         self.inner.lock()
     }

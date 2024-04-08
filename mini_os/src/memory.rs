@@ -63,6 +63,7 @@ pub struct BootInfoFrameAllocator {
     next: usize,
 }
 use bootloader::bootinfo::MemoryRegionType;
+
 impl BootInfoFrameAllocator {
     // creates a FrameAllocator from the passed memory map
     /// # Safety

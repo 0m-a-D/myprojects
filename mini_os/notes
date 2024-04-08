@@ -1,4 +1,4 @@
-refer to 'https://llvm.org/docs/LangRef.html#data-layout' for more info.
+refer to 'https://llvm.org/docs/LangRef.html#data-layout' for more info. [use 'gx' to open links in vim]
 in the target .json file: 
 -> small "e" stands for little endian [E for big endian]
 little endian means least significant byte is assigned to lowest address.

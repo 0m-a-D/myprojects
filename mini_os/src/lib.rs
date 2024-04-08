@@ -11,6 +11,7 @@ pub mod gdt;
 pub mod interrupts;
 pub mod memory;
 pub mod serial;
+pub mod task;
 pub mod vga_buffer;
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 #[repr(u32)]
