@@ -9,7 +9,7 @@ use alloc::alloc::{GlobalAlloc, Layout};
 use core::ptr::null_mut;
 // use linked_list_allocator::LockedHeap;
 
-pub const HEAP_START: usize = 0x_4444_4444_0000; // any address can be chosen untill the address
+pub const HEAP_START: usize = 0x_4444_4444_4444; // any address can be chosen untill the address
 pub const HEAP_SIZE: usize = 100 * 1024; // 100KiB...will increase in future when needed.
 
 pub struct Dummy; // zero-sized type

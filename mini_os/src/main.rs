@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![allow(clippy::eq_op)]
 #![feature(custom_test_frameworks)]
 #![test_runner(mini_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -31,7 +32,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use mini_os::memory::{self, BootInfoFrameAllocator};
     use x86_64::VirtAddr;
 
-    println!("hello world!");
+    println!("Booting mini_os");
     mini_os::init();
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
@@ -57,7 +58,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
         ptr.write(10);
         println!("holds: {} at -> {:p}", *ptr, ptr);
 
-        let ptr = 0x10000201bf8 as *mut f32;
+        let ptr = 0x10000201cf8 as *mut f32;
         ptr.write(12.5);
         println!("holds: {} at {:p}", *ptr, ptr);
 
@@ -130,7 +131,7 @@ async fn example_task() {
     let number = async_number().await;
     println!("async number is: {}", number);
 }
-/* #[test_case]
+#[test_case]
 fn trivial_assertion() {
     assert_eq!(1, 1);
-} */
+}
