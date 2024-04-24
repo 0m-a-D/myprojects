@@ -1,0 +1,7 @@
+Aim: Object Detection Model in Rust
+
+Architecture: CNN (Convolution Neural Network)
+
+Activation function: ReLu (R(x) = max(0,x))
+
+Number of target hidden layers: Upto 10-15
