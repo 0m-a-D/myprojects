@@ -1,0 +1,12 @@
+[package]
+name = "object_detection"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+candle-core = "0.4.1"
+candle-nn = "0.4.1"
+candle-transformers = "0.4.1"
+polars = { version = "x", features = ["lazy"]}
