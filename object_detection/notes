@@ -4,4 +4,4 @@ Architecture: CNN (Convolution Neural Network)
 
 Activation function: ReLu (R(x) = max(0,x))
 
-Number of target hidden layers: Upto 10-15
+Number of target hidden layers: Upto 10-15 (still needs some insights on this)
