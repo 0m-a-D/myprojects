@@ -1,0 +1,8 @@
+This CNN supports following architecture:
+
+-> convolution layer, max pooling for pooling layer, fully connected layers (dense layers)
+-> optimizers: Adam, SGD, Momentum, RMSProp
+-> cross-entropy loss function (for classification) and MSE (for regression)
+-> activation functions: ReLu (for regression) and SoftMax (for classification): COMPLETED
+-> Dropout
+-> He Initialization
