@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(clippy::eq_op)]
+// to silence "identical args used in assert_eq!" clippy warning
 #![feature(custom_test_frameworks)]
 #![test_runner(mini_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -11,8 +12,8 @@ use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use mini_os::println;
 use mini_os::task::{executor::Executor, keyboard, Task};
+use x86_64::registers::control::Cr0;
 
-/// This function is called on panic!!
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -21,6 +22,7 @@ fn panic(info: &PanicInfo) -> ! {
 }
 #[cfg(test)]
 #[panic_handler]
+/// this function is called on panic!
 fn panic(info: &PanicInfo) -> ! {
     mini_os::test_panic_handler(info);
 }
@@ -32,7 +34,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use mini_os::memory::{self, BootInfoFrameAllocator};
     use x86_64::VirtAddr;
 
-    println!("Booting mini_os");
+    // println!("Booting mini_os");
     mini_os::init();
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
@@ -42,6 +44,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
     // STACK IMPLEMENTATION CHECK
     println!("physical_memory_offset: {:?}", phys_mem_offset);
+    println!("{:?}", Cr0::read());
+    // Flags enabled: WRITE_PROTECT, PAGING, PROTECTION_ENABLE, EXTENION_TYPE
+    println!("{:?}", Cr0::read_raw());
+
     // {
     //     let a = 10;
     //     println!("virtual address of a is {:p} and value is {}", &a, a);

@@ -1,4 +1,5 @@
 #![allow(clippy::new_ret_no_self)]
+// to silence "method named 'new' generally returns Self"
 use super::{Task, TaskId};
 use alloc::{collections::BTreeMap, sync::Arc};
 use core::task::{Context, Poll, Waker};

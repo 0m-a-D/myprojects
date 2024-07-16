@@ -3,14 +3,12 @@
 use super::align_up;
 use core::mem;
 
-#[allow(unused)]
 struct ListNode {
     size: usize,
     next: Option<&'static mut ListNode>,
 }
 // "&'static mut" semantically means "owned object behind a pointer". [BASICALLY KIND OF BOX
 // WITHOUT DESTRUCTOR WHICH FREES MEMORY ONCE OBJECT GOES OUT OF SCOPE.]
-#[allow(unused)]
 impl ListNode {
     const fn new(size: usize) -> Self {
         ListNode { size, next: None }
@@ -57,7 +55,6 @@ impl LinkedListAllocator {
 
     // this is the central operation of this allocator. To find the region with it's entry and remove
     // from list [returns a tuple]
-    #[allow(unused)]
     fn find_regions(
         &mut self,
         size: usize,

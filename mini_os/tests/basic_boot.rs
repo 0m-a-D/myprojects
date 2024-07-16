@@ -12,6 +12,7 @@ pub extern "C" fn _start() -> ! {
     test_main();
     mini_os::hlt_loop();
 }
+
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     mini_os::test_panic_handler(info);

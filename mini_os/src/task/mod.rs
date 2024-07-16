@@ -8,7 +8,6 @@ use core::{
     pin::Pin,
     task::{Context, Poll},
 };
-#[allow(unused)]
 pub struct Task {
     id: TaskId,
     future: Pin<Box<dyn Future<Output = ()>>>,
@@ -23,7 +22,6 @@ pub struct Task {
 // are dynamically dispatched which is necessary because each "async fn" has it's own type and we
 // want to create multiple different tasks.
 
-#[allow(unused)]
 impl Task {
     pub fn new(future: impl Future<Output = ()> + 'static) -> Task {
         Task {

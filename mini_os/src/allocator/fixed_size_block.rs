@@ -1,6 +1,5 @@
 use core::{alloc::Layout, ptr};
 
-#[allow(unused)]
 struct ListNode {
     next: Option<&'static mut ListNode>,
 }
@@ -11,7 +10,6 @@ const BLOCK_SIZES: &[usize] = &[8, 16, 32, 64, 128, 256, 512, 1024, 2048];
 // notice we don't add 4. Because each block must be capable to store a 64-bit POINTER to the next
 // block when freed.
 
-#[allow(unused)]
 pub struct FixedSizeBlockAllocator {
     list_heads: [Option<&'static mut ListNode>; BLOCK_SIZES.len()],
     fallback_allocator: linked_list_allocator::Heap,
@@ -31,7 +29,7 @@ impl FixedSizeBlockAllocator {
     /// # Safety
     /// this function is unsafe because caller should make sure that starting heap address and heap
     /// size is valid. Also this function should only be called once
-    pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
+    pub unsafe fn init(&mut self, heap_start: /*usize*/ *mut u8, heap_size: usize) {
         self.fallback_allocator.init(heap_start, heap_size);
     }
 
