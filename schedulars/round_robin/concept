@@ -1,0 +1,149 @@
+PROCESS QUEUE: contains processes from process generator
+
+READY_QUEUE_PROC: takes self.ready_queue as input. Returns Output as a Process.
+
+RUNNING_QUEUE_PROC: takes in a process. updates <BURST TIME> and Returns process back to self.ready_queue
+
+LOGIC IS CORRECT...PROBLEM SEEMS TO BE WITH ORDER OF HANDLING OPERATION
+
+// A simple round robin implementation in RUST for my kernel
+use rand::{thread_rng, Rng};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Process {
+    // real-case situation if process is killed before hand using system call "SIGTERM"...hence Option<u32>
+    pid: Option<u8>,
+    p_burst_time: u32, // milliseconds
+    p_state: ProcessState,
+    p_arrival_time: u32,
+}
+impl Process {
+    fn new() -> Process {
+        Self {
+            pid: Self::pid_assigner(),
+            // randomly generate time required for each process to complete using rand crate with a range 1..20
+            p_burst_time: thread_rng().gen_range(1..8),
+            p_state: ProcessState::Ready,
+            p_arrival_time: thread_rng().gen_range(1..7),
+        }
+    }
+    fn pid_assigner() -> Option<u8> {
+        Some(thread_rng().gen::<u8>())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum ProcessState {
+    InExec,   // current index 0..
+    Complete, // should be popped off..
+    Ready,    // waiting index but can't be 0..
+}
+
+#[allow(unused)]
+struct RRSchedular {
+    ready_queue: Vec<Process>,
+}
+impl RRSchedular {
+    fn new() -> RRSchedular {
+        Self {
+            ready_queue: Vec::new(),
+        }
+    }
+    fn process_queue_generator() -> Vec<Process> {
+        let mut process_queue = Vec::with_capacity(5);
+        let fist_process = Process {
+            pid: Some(thread_rng().gen::<u8>()),
+            p_burst_time: thread_rng().gen_range(1..8),
+            p_arrival_time: 0,
+            p_state: ProcessState::Ready,
+        };
+        process_queue.push(fist_process);
+        for _ in 1..process_queue.capacity() {
+            process_queue.push(Process::new());
+        }
+        process_queue.sort_by(|p1, p2| p1.p_arrival_time.cmp(&p2.p_arrival_time));
+        for (index, process) in process_queue.iter().enumerate() {
+            println!(
+                "Process number: {} with process PID: {:?} has burst time: {} and arrival time: {}",
+                index + 1,
+                process.pid.unwrap(),
+                process.p_burst_time,
+                process.p_arrival_time,
+            );
+        }
+        println!();
+        process_queue
+    }
+    fn ready_queue_proc(ready_queue: &mut Vec<Process>) -> Option<Process> {
+        ready_queue.retain(|process| process.p_state != ProcessState::Complete);
+        if !ready_queue.is_empty() {
+            Some(ready_queue.remove(0))
+        } else {
+            None
+        }
+    }
+    fn running_queue_proc(process: &mut Process) -> Process {
+        if process.p_burst_time <= TIME_QUANTUM {
+            process.p_state = ProcessState::Complete;
+            process.p_burst_time = 0;
+            println!("process with id: {} completed!", process.pid.unwrap());
+            *process
+        } else {
+            process.p_burst_time -= TIME_QUANTUM;
+            process.p_state = ProcessState::InExec;
+            *process
+        }
+    }
+    fn execute_schedular(&mut self, mut process_queue: Vec<Process>) {
+        let (mut interval_start, mut interval_end) = (0_u32, TIME_QUANTUM);
+        loop {
+            (0..process_queue.len()).for_each(|i| {
+                if process_queue[i].p_arrival_time >= interval_start
+                    && process_queue[i].p_arrival_time <= interval_end
+                {
+                    self.ready_queue.push(process_queue[i]);
+                }
+            });
+            println!(
+                "interval_start: {}, interval_end: {}, ready_queue: {:?}",
+                interval_start, interval_end, self.ready_queue
+            );
+            println!();
+
+            let process = RRSchedular::ready_queue_proc(&mut self.ready_queue);
+            match process {
+                None => break,
+                Some(_a) => {
+                    if process.unwrap().p_state == ProcessState::Complete {
+                        for i in 0..process_queue.len() {
+                            if process_queue[i] == process.unwrap() {
+                                process_queue.remove(i);
+                            }
+                        }
+                    }
+                    interval_start = interval_end;
+                    if process.unwrap().p_burst_time >= TIME_QUANTUM {
+                        interval_end += TIME_QUANTUM;
+                    } else if process.unwrap().p_burst_time < TIME_QUANTUM {
+                        interval_end += process.unwrap().p_burst_time;
+                    }
+
+                    self.ready_queue
+                        .push(RRSchedular::running_queue_proc(&mut process.unwrap()));
+
+                    if self.ready_queue.is_empty() {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+const TIME_QUANTUM: u32 = 2; // milliseconds
+
+fn main() {
+    let mut my_schedular = RRSchedular::new();
+    let process_queue = RRSchedular::process_queue_generator();
+    my_schedular.execute_schedular(process_queue);
+}
