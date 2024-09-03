@@ -4,8 +4,8 @@
 ### Install "bootimage" tool
 -> cargo install bootimage
 
-### Install other tools like llvm-preview-tools
--> cargo install llvm-tools-preview
+### Add other tools like llvm-tools
+-> rustup component add llvm-tools
 
 ### Ensure qemu is installed
 -> for MacOS: brew install qemu [for other linux distributions, use corresponding package managers]
